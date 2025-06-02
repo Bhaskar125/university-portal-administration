@@ -484,7 +484,11 @@ export default function CourseDetailPage() {
               </TableHeader>
               <TableBody>
                 {filteredStudents.map((student) => (
-                  <TableRow key={student.rollNumber} className="hover:bg-gray-50 transition-colors">
+                  <TableRow 
+                    key={student.rollNumber} 
+                    className="hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/dashboard/professor/courses/${courseId}/students/${student.rollNumber}`)}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
