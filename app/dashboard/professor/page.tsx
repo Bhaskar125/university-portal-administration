@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
 import { 
   BookOpen, 
   Users, 
@@ -19,10 +20,13 @@ import {
   Activity,
   CheckCircle,
   FileText,
-  BarChart3
+  BarChart3,
+  ExternalLink
 } from "lucide-react"
 
 export default function ProfessorDashboard() {
+  const router = useRouter()
+
   const stats = [
     {
       title: "My Courses",
@@ -64,44 +68,52 @@ export default function ProfessorDashboard() {
 
   const myCourses = [
     {
-      id: 1,
+      id: "cs401",
       name: "Advanced Computer Science",
       code: "CS401",
       students: 45,
       schedule: "Mon, Wed, Fri - 9:00 AM",
       progress: 78,
       status: "active",
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      semester: "Fall 2024",
+      room: "Room 101A"
     },
     {
-      id: 2,
+      id: "cs301",
       name: "Data Structures & Algorithms",
       code: "CS301",
       students: 52,
       schedule: "Tue, Thu - 2:00 PM",
       progress: 85,
       status: "active",
-      color: "bg-emerald-500"
+      color: "bg-emerald-500",
+      semester: "Fall 2024",
+      room: "Room 205B"
     },
     {
-      id: 3,
+      id: "cs350",
       name: "Database Management",
       code: "CS350",
       students: 38,
       schedule: "Mon, Wed - 11:00 AM",
       progress: 92,
       status: "active",
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      semester: "Fall 2024",
+      room: "Lab 301"
     },
     {
-      id: 4,
+      id: "cs402",
       name: "Software Engineering",
       code: "CS402",
       students: 41,
       schedule: "Tue, Thu - 10:00 AM",
       progress: 65,
       status: "active",
-      color: "bg-orange-500"
+      color: "bg-orange-500",
+      semester: "Fall 2024",
+      room: "Room 150"
     }
   ]
 
@@ -358,7 +370,7 @@ export default function ProfessorDashboard() {
                 <BookOpen className="w-5 h-5 text-blue-500" />
                 My Courses
               </CardTitle>
-              <CardDescription>Courses you&apos;re currently teaching</CardDescription>
+              <CardDescription>Click on any course to view student attendance and details</CardDescription>
             </div>
             <Button variant="ghost" size="sm" className="gap-1 hover:bg-blue-50">
               Manage All
@@ -369,37 +381,48 @@ export default function ProfessorDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {myCourses.map((course) => (
-              <div key={course.id} className="group p-4 rounded-xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300 cursor-pointer">
+              <div 
+                key={course.id} 
+                className="group p-4 rounded-xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                onClick={() => router.push(`/dashboard/professor/courses/${course.id}`)}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${course.color} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
-                      <BookOpen className="w-5 h-5 text-white" />
+                    <div className={`w-12 h-12 ${course.color} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-md`}>
+                      <BookOpen className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
                         {course.name}
                       </h3>
-                      <p className="text-sm text-gray-600">{course.code}</p>
+                      <p className="text-sm text-gray-600">{course.code} • {course.semester}</p>
+                      <p className="text-xs text-gray-500">{course.room}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-xs bg-white border-gray-200">
-                    {course.students} students
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant="outline" className="text-xs bg-white border-gray-200">
+                      {course.students} students
+                    </Badge>
+                    <div className="flex items-center gap-1 text-blue-600 group-hover:text-blue-800">
+                      <ExternalLink className="w-3 h-3" />
+                      <span className="text-xs font-medium">View Details</span>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Clock className="w-3 h-3" />
                     <span>{course.schedule}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Progress</span>
+                    <span className="text-xs text-gray-500">Course Progress</span>
                     <span className="text-xs font-medium text-gray-700">{course.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div 
-                      className="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-blue-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500 group-hover:from-blue-600 group-hover:to-emerald-600"
                       style={{ width: `${course.progress}%` }}
                     ></div>
                   </div>
