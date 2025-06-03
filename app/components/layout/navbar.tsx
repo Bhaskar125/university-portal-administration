@@ -17,7 +17,6 @@ import {
 import { 
   GraduationCap, 
   LayoutDashboard, 
-  Users, 
   BookOpen, 
   Calendar,
   Bell,
@@ -33,9 +32,8 @@ import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Students", href: "/students", icon: Users },
-  { name: "Courses", href: "/courses", icon: BookOpen },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
+  { name: "Courses", href: "/dashboard/student/courses", icon: BookOpen },
+  { name: "Calendar", href: "/dashboard/student/calendar", icon: Calendar },
 ]
 
 export function Navbar() {
