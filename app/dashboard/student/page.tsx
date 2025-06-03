@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +25,8 @@ import {
 } from "lucide-react"
 
 export default function StudentDashboard() {
+  const router = useRouter()
+
   const stats = [
     {
       title: "Enrolled Courses",
@@ -189,28 +192,28 @@ export default function StudentDashboard() {
       title: "Submit Assignment",
       description: "Upload your coursework",
       icon: FileText,
-      href: "/assignments/submit",
+      href: "/dashboard/student/assignments",
       color: "from-blue-500 to-blue-600"
     },
     {
       title: "View Grades",
       description: "Check your performance",
       icon: Award,
-      href: "/grades",
+      href: "/dashboard/student/grades",
       color: "from-emerald-500 to-emerald-600"
     },
     {
       title: "Course Materials",
       description: "Access study resources",
       icon: BookOpen,
-      href: "/materials",
+      href: "/dashboard/student/materials",
       color: "from-purple-500 to-purple-600"
     },
     {
       title: "Study Progress",
       description: "Track your learning",
       icon: BarChart3,
-      href: "/progress",
+      href: "/dashboard/student/progress",
       color: "from-orange-500 to-orange-600"
     }
   ]
@@ -302,7 +305,7 @@ export default function StudentDashboard() {
                       key={index}
                       className="group p-4 rounded-xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300 cursor-pointer"
                       onClick={() => {
-                        alert(`${action.title} feature coming soon!`)
+                        router.push(action.href)
                       }}
                     >
                       <div className="flex items-start gap-3">
@@ -336,7 +339,11 @@ export default function StudentDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {upcomingAssignments.map((assignment) => (
-              <div key={assignment.id} className="group flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200 cursor-pointer">
+              <div 
+                key={assignment.id} 
+                className="group flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                onClick={() => router.push(`/dashboard/student/courses/${assignment.course.toLowerCase().replace('cs', '')}`)}
+              >
                 <div className={`w-3 h-3 rounded-full ${assignment.color} group-hover:scale-125 transition-transform duration-200`}></div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-gray-900 truncate">{assignment.title}</h4>
@@ -351,7 +358,14 @@ export default function StudentDashboard() {
               </div>
             ))}
             
-            <Button variant="ghost" className="w-full justify-center gap-2 mt-4 text-blue-600 hover:text-blue-800 hover:bg-blue-50">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-center gap-2 mt-4 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+              onClick={() => {
+                // Navigate to the first course's assignments
+                router.push(`/dashboard/student/courses/1?tab=assignments`)
+              }}
+            >
               View All Assignments
               <ArrowRight className="w-4 h-4" />
             </Button>
@@ -379,7 +393,11 @@ export default function StudentDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {enrolledCourses.map((course) => (
-              <div key={course.id} className="group p-4 rounded-xl border-2 border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300 cursor-pointer">
+              <div 
+                key={course.id} 
+                className="group p-4 rounded-xl border-2 border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                onClick={() => router.push(`/dashboard/student/courses/${course.id}`)}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 ${course.color} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
@@ -392,9 +410,14 @@ export default function StudentDashboard() {
                       <p className="text-sm text-gray-600">{course.code}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-xs bg-white border-gray-200">
-                    Grade: {course.grade}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant="outline" className="text-xs bg-white border-gray-200">
+                      Grade: {course.grade}
+                    </Badge>
+                    <div className="flex items-center gap-1 text-emerald-600 group-hover:text-emerald-800">
+                      <span className="text-xs font-medium">View Details</span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
