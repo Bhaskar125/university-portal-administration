@@ -60,7 +60,7 @@ export function LoginForm() {
     
     // Demo credentials for different roles
     const validCredentials = {
-      admin: { email: "admin@test.com", password: "password", dashboard: "/dashboard" },
+      admin: { email: "admin@test.com", password: "password", dashboard: "/dashboard/admin" },
       professor: { email: "professor@test.com", password: "password", dashboard: "/dashboard/professor" },
       student: { email: "student@test.com", password: "password", dashboard: "/dashboard/student" }
     }

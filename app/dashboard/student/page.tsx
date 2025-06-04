@@ -23,6 +23,7 @@ import {
   Target,
   BookmarkCheck
 } from "lucide-react"
+import Link from "next/link"
 
 export default function StudentDashboard() {
   const router = useRouter()
@@ -232,11 +233,13 @@ export default function StudentDashboard() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 hover:scale-105 transition-transform duration-200">
-            <Bell className="w-4 h-4" />
-            Notifications
-            <Badge variant="secondary" className="ml-1">3</Badge>
-          </Button>
+          <Link href="/dashboard/student/notifications">
+            <Button variant="outline" className="gap-2 hover:scale-105 transition-transform duration-200">
+              <Bell className="w-4 h-4" />
+              Notifications
+              <Badge variant="secondary" className="ml-1">3</Badge>
+            </Button>
+          </Link>
           
           <Button className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
             <Plus className="w-4 h-4" />

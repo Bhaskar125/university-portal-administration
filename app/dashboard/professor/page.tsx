@@ -23,6 +23,7 @@ import {
   BarChart3,
   ExternalLink
 } from "lucide-react"
+import Link from "next/link"
 
 export default function ProfessorDashboard() {
   const router = useRouter()
@@ -231,11 +232,13 @@ export default function ProfessorDashboard() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 hover:scale-105 transition-transform duration-200">
-            <Bell className="w-4 h-4" />
-            Notifications
-            <Badge variant="secondary" className="ml-1">5</Badge>
-          </Button>
+          <Link href="/dashboard/professor/notifications">
+            <Button variant="outline" className="gap-2 hover:scale-105 transition-transform duration-200">
+              <Bell className="w-4 h-4" />
+              Notifications
+              <Badge variant="secondary" className="ml-1">5</Badge>
+            </Button>
+          </Link>
           
           <Button className="gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
             <Plus className="w-4 h-4" />

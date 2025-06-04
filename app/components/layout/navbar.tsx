@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { NotificationDropdown, type Notification } from "@/components/ui/notification-dropdown"
 import { 
   GraduationCap, 
   LayoutDashboard, 
@@ -40,6 +40,93 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Mock notification data - in a real app, this would come from an API
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: "1",
+      title: "New Course Assignment",
+      message: "You have been assigned to teach Advanced Mathematics for the Fall 2024 semester.",
+      type: "info",
+      category: "course",
+      timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+      read: false,
+      actionUrl: "/dashboard/admin/courses",
+      user: {
+        name: "Dr. Sarah Johnson",
+        avatar: "/api/placeholder/32/32"
+      }
+    },
+    {
+      id: "2",
+      title: "Grade Submission Due",
+      message: "Final grades for CS301 Database Systems are due by Friday, December 15th.",
+      type: "warning",
+      category: "grade",
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      read: false,
+      actionUrl: "/dashboard/professor/courses"
+    },
+    {
+      id: "3",
+      title: "System Maintenance Scheduled",
+      message: "The portal will be under maintenance on Sunday from 2:00 AM to 6:00 AM.",
+      type: "warning",
+      category: "system",
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+      read: true,
+      actionUrl: "/dashboard/admin/settings"
+    },
+    {
+      id: "4",
+      title: "New Student Enrollment",
+      message: "Alice Johnson has enrolled in Computer Science program.",
+      type: "success",
+      category: "enrollment",
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+      read: false,
+      actionUrl: "/dashboard/admin/students",
+      user: {
+        name: "Alice Johnson",
+        avatar: "/api/placeholder/32/32"
+      }
+    },
+    {
+      id: "5",
+      title: "Course Evaluation Available",
+      message: "Course evaluation for Machine Learning is now available for students to complete.",
+      type: "info",
+      category: "course",
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      read: true,
+      actionUrl: "/dashboard/professor/courses"
+    }
+  ])
+
+  const unreadCount = notifications.filter(n => !n.read).length
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (notification.actionUrl) {
+      router.push(notification.actionUrl)
+    }
+  }
+
+  const handleMarkAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+    )
+  }
+
+  const getNotificationUrl = () => {
+    if (pathname.startsWith('/dashboard/admin')) {
+      return '/dashboard/admin/notifications'
+    } else if (pathname.startsWith('/dashboard/professor')) {
+      return '/dashboard/professor/notifications'
+    } else if (pathname.startsWith('/dashboard/student')) {
+      return '/dashboard/student/notifications'
+    }
+    return '/dashboard/notifications'
+  }
 
   const handleLogout = () => {
     // Since there's no backend yet, we'll just redirect to landing page
@@ -120,16 +207,13 @@ export function Navbar() {
             </Button>
 
             {/* Notifications */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:scale-105 transition-all duration-200"
-            >
-              <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
-                3
-              </Badge>
-            </Button>
+            <NotificationDropdown
+              notifications={notifications}
+              unreadCount={unreadCount}
+              viewAllUrl={getNotificationUrl()}
+              onNotificationClick={handleNotificationClick}
+              onMarkAsRead={handleMarkAsRead}
+            />
 
             {/* User Menu */}
             <DropdownMenu>
