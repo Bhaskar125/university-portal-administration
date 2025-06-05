@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, Loader2, CheckCircle, Users, GraduationCap, Shield } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function LoginForm() {
   const searchParams = useSearchParams()
@@ -23,6 +24,7 @@ export function LoginForm() {
   const [error, setError] = useState("")
   const [loggedOut, setLoggedOut] = useState(false)
   const [registered, setRegistered] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     // Check if user was redirected from logout
@@ -46,39 +48,69 @@ export function LoginForm() {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-    setLoggedOut(false)
-    
-    // Validate role selection
-    if (!formData.role) {
-      setError("Please select your role to continue")
-      setIsLoading(false)
-      return
-    }
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Demo credentials for different roles
-    const validCredentials = {
-      admin: { email: "admin@test.com", password: "password", dashboard: "/dashboard/admin" },
-      professor: { email: "professor@test.com", password: "password", dashboard: "/dashboard/professor" },
-      student: { email: "student@test.com", password: "password", dashboard: "/dashboard/student" }
-    }
-    
-    const credentials = validCredentials[formData.role as keyof typeof validCredentials]
-    
-    if (credentials && formData.email === credentials.email && formData.password === credentials.password) {
-      window.location.href = credentials.dashboard
-    } else {
-      const roleCredentials = Object.entries(validCredentials).find(([role]) => role === formData.role)?.[1]
-      if (roleCredentials) {
-        setError(`Invalid credentials. Try ${roleCredentials.email} / password`)
-      } else {
-        setError("Invalid email or password")
+
+    try {
+      const { email, password, role } = formData
+      
+      if (!email || !password) {
+        setError("Please fill in all fields")
+        setIsLoading(false)
+        return
       }
+
+      // Check if we're in development mode with mock auth
+      if (process.env.NEXT_PUBLIC_SKIP_AUTH === 'true') {
+        // Mock authentication for development
+        if (!role) {
+          setError("Please select your role")
+          setIsLoading(false)
+          return
+        }
+        
+        // Simulate login delay
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        
+        // Bypass authentication - redirect based on role
+        if (role === 'admin') {
+          router.push('/dashboard/admin')
+        } else if (role === 'professor') {
+          router.push('/dashboard/professor')
+        } else {
+          router.push('/dashboard/student')
+        }
+      } else {
+        // Real Supabase authentication
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed')
+        }
+
+        // Redirect based on user role
+        const userRole = data.user.role
+        if (userRole === 'admin') {
+          router.push('/dashboard/admin')
+        } else if (userRole === 'professor') {
+          router.push('/dashboard/professor')
+        } else {
+          router.push('/dashboard/student')
+        }
+      }
+      
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
-    
-    setIsLoading(false)
   }
 
   const handleInputChange = (field: string, value: string) => {

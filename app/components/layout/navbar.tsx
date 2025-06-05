@@ -41,67 +41,8 @@ export function Navbar() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // Mock notification data - in a real app, this would come from an API
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "New Course Assignment",
-      message: "You have been assigned to teach Advanced Mathematics for the Fall 2024 semester.",
-      type: "info",
-      category: "course",
-      timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
-      read: false,
-      actionUrl: "/dashboard/admin/courses",
-      user: {
-        name: "Dr. Sarah Johnson",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "2",
-      title: "Grade Submission Due",
-      message: "Final grades for CS301 Database Systems are due by Friday, December 15th.",
-      type: "warning",
-      category: "grade",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-      read: false,
-      actionUrl: "/dashboard/professor/courses"
-    },
-    {
-      id: "3",
-      title: "System Maintenance Scheduled",
-      message: "The portal will be under maintenance on Sunday from 2:00 AM to 6:00 AM.",
-      type: "warning",
-      category: "system",
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-      read: true,
-      actionUrl: "/dashboard/admin/settings"
-    },
-    {
-      id: "4",
-      title: "New Student Enrollment",
-      message: "Alice Johnson has enrolled in Computer Science program.",
-      type: "success",
-      category: "enrollment",
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-      read: false,
-      actionUrl: "/dashboard/admin/students",
-      user: {
-        name: "Alice Johnson",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "5",
-      title: "Course Evaluation Available",
-      message: "Course evaluation for Machine Learning is now available for students to complete.",
-      type: "info",
-      category: "course",
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-      read: true,
-      actionUrl: "/dashboard/professor/courses"
-    }
-  ])
+  // Empty notifications array for real-time system state
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   const unreadCount = notifications.filter(n => !n.read).length
 

@@ -25,7 +25,8 @@ import {
   Archive,
   FileText,
   MessageSquare,
-  Users
+  Users,
+  Plus
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -53,113 +54,7 @@ export default function ProfessorNotificationsPage() {
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "New Assignment Submission",
-      message: "Alice Johnson has submitted Assignment #3 for Data Structures. Review required.",
-      type: "info",
-      category: "submission",
-      timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "medium",
-      courseCode: "CS201",
-      actionUrl: "/dashboard/professor/courses/cs201",
-      student: {
-        name: "Alice Johnson",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "2",
-      title: "Grade Submission Deadline",
-      message: "Reminder: Final grades for CS301 Database Systems are due by Friday, December 15th at 11:59 PM.",
-      type: "warning",
-      category: "grading",
-      timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "high",
-      courseCode: "CS301",
-      actionUrl: "/dashboard/professor/courses/cs301"
-    },
-    {
-      id: "3",
-      title: "Course Evaluation Results",
-      message: "Course evaluation results for Machine Learning (CS401) are now available. Overall rating: 4.8/5.0",
-      type: "success",
-      category: "course",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      priority: "medium",
-      courseCode: "CS401",
-      actionUrl: "/dashboard/professor/courses/cs401"
-    },
-    {
-      id: "4",
-      title: "Student Query",
-      message: "Bob Smith has posted a question in the CS201 discussion forum regarding Binary Trees topic.",
-      type: "info",
-      category: "student",
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "low",
-      courseCode: "CS201",
-      student: {
-        name: "Bob Smith",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "5",
-      title: "Late Submission Alert",
-      message: "David Wilson submitted Assignment #2 after the deadline. Review late submission policy.",
-      type: "warning",
-      category: "submission",
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "medium",
-      courseCode: "CS401",
-      student: {
-        name: "David Wilson",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "6",
-      title: "Faculty Meeting Notice",
-      message: "Department faculty meeting scheduled for Monday, December 18th at 2:00 PM in Conference Room B.",
-      type: "info",
-      category: "admin",
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      priority: "medium"
-    },
-    {
-      id: "7",
-      title: "Course Attendance Alert",
-      message: "Emma Davis has exceeded the maximum allowed absences for CS301. Academic intervention may be required.",
-      type: "warning",
-      category: "student",
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "high",
-      courseCode: "CS301",
-      student: {
-        name: "Emma Davis",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "8",
-      title: "Research Grant Approval",
-      message: "Congratulations! Your research proposal for AI in Education has been approved for $25,000 funding.",
-      type: "success",
-      category: "general",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "high"
-    }
-  ])
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   const getNotificationIcon = (category: string) => {
     switch (category) {
@@ -262,6 +157,10 @@ export default function ProfessorNotificationsPage() {
     setSelectedIds([])
   }
 
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })))
+  }
+
   return (
     <div className="space-y-8 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -289,9 +188,18 @@ export default function ProfessorNotificationsPage() {
             Quick Reply
           </Button>
           
+          <Button 
+            className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            onClick={handleMarkAllAsRead}
+            disabled={unreadCount === 0}
+          >
+            <Check className="w-4 h-4" />
+            Mark All Read
+          </Button>
+          
           <Button className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
+            <Plus className="w-4 h-4" />
+            Create Notification
           </Button>
         </div>
       </div>

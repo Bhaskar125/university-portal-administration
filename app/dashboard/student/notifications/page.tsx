@@ -24,7 +24,8 @@ import {
   Star,
   Award,
   FileText,
-  Clock
+  Clock,
+  AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -52,118 +53,22 @@ export default function StudentNotificationsPage() {
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "Assignment Grade Released",
-      message: "Your grade for Data Structures Assignment #3 has been posted. You scored 95/100.",
-      type: "success",
-      category: "grade",
-      timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "medium",
-      courseCode: "CS201",
-      actionUrl: "/dashboard/student/grades",
-      instructor: {
-        name: "Prof. Michael Chen",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "2",
-      title: "New Assignment Posted",
-      message: "Machine Learning Project #2 has been posted. Due date: December 20th, 2024.",
-      type: "info",
-      category: "assignment",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "high",
-      courseCode: "CS401",
-      actionUrl: "/dashboard/student/assignments",
-      instructor: {
-        name: "Dr. Lisa Wang",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "3",
-      title: "Assignment Deadline Reminder",
-      message: "Database Systems Project is due tomorrow at 11:59 PM. Make sure to submit before the deadline.",
-      type: "warning",
-      category: "deadline",
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      priority: "high",
-      courseCode: "CS301",
-      actionUrl: "/dashboard/student/assignments"
-    },
-    {
-      id: "4",
-      title: "Course Material Updated",
-      message: "New lecture slides for Chapter 12: Advanced Algorithms have been uploaded to the course materials.",
-      type: "info",
-      category: "course",
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "low",
-      courseCode: "CS201",
-      actionUrl: "/dashboard/student/materials",
-      instructor: {
-        name: "Prof. Michael Chen",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "5",
-      title: "Mid-term Exam Schedule",
-      message: "Mid-term examination for Machine Learning is scheduled for January 15th, 2025 at 10:00 AM in Room 301.",
-      type: "info",
-      category: "announcement",
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      priority: "high",
-      courseCode: "CS401",
-      instructor: {
-        name: "Dr. Lisa Wang",
-        avatar: "/api/placeholder/32/32"
-      }
-    },
-    {
-      id: "6",
-      title: "Academic Performance Update",
-      message: "Congratulations! You're currently ranked 3rd in your Computer Science cohort with a GPA of 3.85.",
-      type: "success",
-      category: "general",
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      read: false,
-      priority: "medium"
-    },
-    {
-      id: "7",
-      title: "Course Registration Opens",
-      message: "Spring 2025 course registration opens on January 3rd, 2025. Don't forget to register for your required courses.",
-      type: "info",
-      category: "announcement",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      read: true,
-      priority: "medium"
-    }
-  ])
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
-  const getNotificationIcon = (category: string) => {
+  const getNotificationIcon = (category: string, type: string) => {
     switch (category) {
       case "grade":
         return <GraduationCap className="w-4 h-4" />
-      case "assignment":
-        return <FileText className="w-4 h-4" />
       case "course":
         return <BookOpen className="w-4 h-4" />
-      case "deadline":
-        return <Clock className="w-4 h-4" />
+      case "assignment":
+        return <FileText className="w-4 h-4" />
       case "announcement":
         return <Info className="w-4 h-4" />
+      case "deadline":
+        return <Clock className="w-4 h-4" />
       default:
-        return <Bell className="w-4 h-4" />
+        return type === "error" ? <AlertCircle className="w-4 h-4" /> : <Bell className="w-4 h-4" />
     }
   }
 
@@ -370,6 +275,7 @@ export default function StudentNotificationsPage() {
                   <SelectItem value="info">Info</SelectItem>
                   <SelectItem value="success">Success</SelectItem>
                   <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -478,7 +384,7 @@ export default function StudentNotificationsPage() {
                       "flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 border",
                       getNotificationColor(notification.type)
                     )}>
-                      {getNotificationIcon(notification.category)}
+                      {getNotificationIcon(notification.category, notification.type)}
                     </div>
                     
                     <div className="flex-1 min-w-0">

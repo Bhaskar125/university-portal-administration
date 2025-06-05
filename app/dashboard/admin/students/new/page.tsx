@@ -95,12 +95,33 @@ export default function NewStudentPage() {
       if (formData.department && formData.batch && (field === "department" || field === "batch")) {
         const dept = field === "department" ? value : formData.department
         const batch = field === "batch" ? value : formData.batch
-        const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-        setFormData(prev => ({ 
-          ...prev, 
-          [field]: value,
-          studentId: `${dept}${batch}${randomNum}`
-        }))
+        
+        // Generate unique student ID via API
+        fetch('/api/generate-student-id', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ department: dept, batch })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.studentId) {
+            setFormData(prev => ({ 
+              ...prev, 
+              [field]: value,
+              studentId: data.studentId
+            }))
+          }
+        })
+        .catch(err => {
+          console.error('Error generating student ID:', err)
+          // Fallback to original method
+          const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+          setFormData(prev => ({ 
+            ...prev, 
+            [field]: value,
+            studentId: `${dept}${batch}${randomNum}`
+          }))
+        })
       }
     }
   }
@@ -145,10 +166,28 @@ export default function NewStudentPage() {
     }
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Call the API to create student
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          semester: parseInt(formData.year.replace(/\D/g, '')) // Convert "1st Year" to 1
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        const errorMessage = data.details 
+          ? `${data.error}: ${data.details}` 
+          : data.error || 'Failed to create student'
+        throw new Error(errorMessage)
+      }
       
-      console.log("Student data:", formData)
+      console.log("Student created:", data)
       setSuccess(true)
       
       // Reset form after success
@@ -162,8 +201,9 @@ export default function NewStudentPage() {
         setSuccess(false)
       }, 3000)
       
-    } catch {
-      setError("Failed to create student. Please try again.")
+    } catch (err) {
+      console.error('Submission error:', err)
+      setError(err instanceof Error ? err.message : "Failed to create student. Please try again.")
     } finally {
       setIsLoading(false)
     }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -30,7 +30,23 @@ export default function StudentsPage() {
   const [selectedDepartment, setSelectedDepartment] = useState("all")
   const [selectedBatch, setSelectedBatch] = useState("all")
 
-  // Mock student data
+  // Attempt to fetch from API on mount
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch('/api/students')
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Fetched students from API:', data.students)
+        }
+      } catch {
+        console.log('API not available, using mock data')
+      }
+    }
+    fetchStudents()
+  }, [])
+
+  // Mock student data (will be replaced when API is connected)
   const students = [
     {
       id: "STU001",
