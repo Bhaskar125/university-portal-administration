@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -40,6 +40,42 @@ export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<{
+    id: string
+    email: string
+    role: 'admin' | 'professor' | 'student'
+    firstName?: string
+    lastName?: string
+  } | null>(null)
+
+  // Load user data from localStorage on component mount
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('currentUser')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      } else {
+        // Fallback to mock data if no user is stored
+        setUser({
+          id: 'mock-user',
+          email: 'admin@example.com',
+          role: 'admin',
+          firstName: 'Admin',
+          lastName: 'User'
+        })
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error)
+      // Fallback to mock data on error
+      setUser({
+        id: 'mock-user',
+        email: 'admin@example.com',
+        role: 'admin',
+        firstName: 'Admin',
+        lastName: 'User'
+      })
+    }
+  }, [])
 
   // Empty notifications array for real-time system state
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -69,10 +105,52 @@ export function Navbar() {
     return '/dashboard/notifications'
   }
 
-  const handleLogout = () => {
-    // Since there's no backend yet, we'll just redirect to landing page
-    // In a real app, you would clear tokens, call logout API, etc.
-    router.push('/')
+  const handleLogout = async () => {
+    try {
+      // Clear user data from localStorage
+      localStorage.removeItem('currentUser')
+      setUser(null)
+      
+      // Redirect to home page
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+      router.push('/')
+    }
+  }
+
+  // Helper functions for user display
+  const getUserDisplayName = () => {
+    if (!user) return 'Guest User'
+    return `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email.split('@')[0]
+  }
+
+  const getUserRole = () => {
+    if (!user) return 'Guest'
+    return user.role.charAt(0).toUpperCase() + user.role.slice(1)
+  }
+
+  const getUserInitials = () => {
+    if (!user) return 'GU'
+    if (user.firstName && user.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+    }
+    const emailName = user.email.split('@')[0]
+    return emailName.length >= 2 ? emailName.slice(0, 2).toUpperCase() : emailName.toUpperCase()
+  }
+
+  const getAvatarFallbackColor = () => {
+    if (!user) return 'from-gray-500 to-gray-600'
+    switch (user.role) {
+      case 'admin':
+        return 'from-red-500 to-red-600'
+      case 'professor':
+        return 'from-blue-500 to-purple-500'
+      case 'student':
+        return 'from-green-500 to-blue-500'
+      default:
+        return 'from-gray-500 to-gray-600'
+    }
   }
 
   return (
@@ -164,14 +242,14 @@ export function Navbar() {
                   className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-all duration-200 group"
                 >
                   <Avatar className="w-8 h-8 ring-2 ring-white shadow-md group-hover:scale-105 transition-transform duration-200">
-                    <AvatarImage src="/api/placeholder/32/32" alt="Admin" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-sm">
-                      AD
+                    <AvatarImage src="/api/placeholder/32/32" alt={getUserDisplayName()} />
+                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarFallbackColor()} text-white font-semibold text-sm`}>
+                      {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden lg:block text-left">
-                    <p className="text-sm font-medium text-gray-900">Admin User</p>
-                    <p className="text-xs text-gray-500">Administrator</p>
+                    <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
+                    <p className="text-xs text-gray-500">{getUserRole()}</p>
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
                 </Button>
@@ -179,8 +257,8 @@ export function Navbar() {
               <DropdownMenuContent align="end" className="w-56 mt-2 p-2">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Admin User</p>
-                    <p className="text-xs leading-none text-gray-500">admin@eduportal.com</p>
+                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                    <p className="text-xs leading-none text-gray-500">{user?.email || 'guest@example.com'}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

@@ -1,5 +1,6 @@
 "use client"
 
+import { RouteGuard } from "@/app/components/auth/route-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -95,7 +96,8 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <div className="space-y-8 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
+    <RouteGuard allowedRoles={['admin']}>
+      <div className="space-y-8 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
@@ -368,5 +370,6 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
     </div>
+    </RouteGuard>
   )
 } 
