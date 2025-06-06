@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { v4 as uuidv4 } from 'uuid'
 
 export async function GET() {
   try {
@@ -29,33 +28,43 @@ export async function POST(request: NextRequest) {
       lastName,
       email,
       phone,
-      department,
-      professorId,
-      specialization,
-      qualification,
-      experience,
-      joinDate,
-      salary,
-      address,
-      dateOfBirth,
-      gender,
-      bloodGroup,
-      nationality,
-      previousInstitution,
-      researchAreas,
-      publications,
-      certifications,
-      biography
+      department
     } = body
 
-    // Generate UUID for the user
-    const userId = uuidv4()
+    console.log('Creating professor with data:', { firstName, lastName, email, department })
 
-    // Start a transaction by creating profile first
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
+    // Check if professor with this email already exists
+    const { data: existingProfessor, error: checkError } = await supabaseAdmin
+      .from('pre_registered_users')
+      .select('email')
+      .eq('email', email)
+      .eq('role', 'professor')
+      .single()
+
+    if (existingProfessor) {
+      return NextResponse.json({ error: 'A professor with this email already exists' }, { status: 400 })
+    }
+
+    // Note: checkError is expected when no professor is found, so we don't need to handle it
+
+    // Validate that department exists
+    const { data: deptData, error: deptError } = await supabaseAdmin
+      .from('departments')
+      .select('id, name, code')
+      .eq('code', department)
+      .single()
+
+    if (deptError || !deptData) {
+      console.error('Department not found:', deptError)
+      return NextResponse.json({ error: `Department '${department}' not found. Please ensure the department exists.` }, { status: 404 })
+    }
+
+    console.log('Found department:', deptData)
+
+    // Create professor in pre_registered_users table
+    const { data: professor, error: professorError } = await supabaseAdmin
+      .from('pre_registered_users')
       .insert({
-        id: userId,
         email,
         first_name: firstName,
         last_name: lastName,
@@ -65,77 +74,32 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (profileError) {
-      console.error('Error creating profile:', profileError)
-      return NextResponse.json({ error: 'Failed to create professor profile' }, { status: 500 })
-    }
-
-    // Get department ID
-    const { data: deptData, error: deptError } = await supabaseAdmin
-      .from('departments')
-      .select('id')
-      .eq('code', department)
-      .single()
-
-    if (deptError || !deptData) {
-      console.error('Error finding department:', deptError)
-      return NextResponse.json({ error: 'Department not found' }, { status: 404 })
-    }
-
-    // Create professor record
-    const { data: professor, error: professorError } = await supabaseAdmin
-      .from('professors')
-      .insert({
-        id: userId,
-        professor_id: professorId,
-        department_id: deptData.id,
-        specialization,
-        qualification,
-        experience: experience ? parseInt(experience) : null,
-        join_date: joinDate,
-        salary: salary ? parseFloat(salary) : null
-      })
-      .select()
-      .single()
-
     if (professorError) {
       console.error('Error creating professor:', professorError)
-      // Rollback - delete the profile
-      await supabaseAdmin.from('profiles').delete().eq('id', userId)
-      return NextResponse.json({ error: 'Failed to create professor record' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Failed to create professor. ' + (professorError.message || 'Unknown database error') 
+      }, { status: 500 })
     }
 
-    // Create additional professor details if needed
-    const { data: professorDetails } = await supabaseAdmin
-      .from('professor_additional_info')
-      .insert({
-        professor_id: userId,
-        address,
-        date_of_birth: dateOfBirth,
-        gender,
-        blood_group: bloodGroup,
-        nationality,
-        previous_institution: previousInstitution,
-        research_areas: researchAreas,
-        publications,
-        certifications,
-        biography
-      })
-
-    // Note: If professor_additional_info table doesn't exist, comment out the above block
+    console.log('Professor created successfully:', professor)
 
     return NextResponse.json({ 
       message: 'Professor created successfully',
       professor: {
-        id: userId,
-        profile,
-        professor,
-        professorDetails
+        id: professor.id,
+        email: professor.email,
+        firstName: professor.first_name,
+        lastName: professor.last_name,
+        role: professor.role,
+        department: deptData.name,
+        created_at: professor.created_at
       }
     })
 
   } catch (error) {
     console.error('Error creating professor:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error')
+    }, { status: 500 })
   }
 } 

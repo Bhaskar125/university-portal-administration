@@ -143,11 +143,22 @@ export default function NewProfessorPage() {
     setError("")
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // In a real app, you would send data to your API here
-      console.log("Professor data:", formData)
+      // Make API call to create professor
+      const response = await fetch("/api/professors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create professor")
+      }
+
+      const result = await response.json()
+      console.log("Professor created successfully:", result)
       
       setSuccess(true)
       // Reset form after success
@@ -163,8 +174,9 @@ export default function NewProfessorPage() {
         setSuccess(false)
       }, 3000)
       
-    } catch {
-      setError("Failed to create professor. Please try again.")
+    } catch (error) {
+      console.error("Error creating professor:", error)
+      setError(error instanceof Error ? error.message : "Failed to create professor. Please try again.")
     } finally {
       setIsLoading(false)
     }
