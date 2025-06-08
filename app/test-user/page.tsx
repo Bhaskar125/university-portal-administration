@@ -3,7 +3,7 @@
 import { Navbar } from '@/app/components/layout/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { User, Mail, Shield } from 'lucide-react'
+import { User, Mail, Shield, Loader2 } from 'lucide-react'
 
 export default function TestUserPage() {
   // Mock user data for demonstration
@@ -12,7 +12,8 @@ export default function TestUserPage() {
     email: 'admin@example.com',
     role: 'admin' as const,
     firstName: 'Admin',
-    lastName: 'User'
+    lastName: 'User',
+    phone: undefined as string | undefined
   }
   const loading = false
 

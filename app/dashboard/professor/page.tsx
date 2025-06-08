@@ -26,6 +26,11 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+interface Course {
+  instructor: string
+  [key: string]: unknown
+}
+
 export default function ProfessorDashboard() {
   const [professorsCoursesCount, setProfessorsCoursesCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -41,7 +46,7 @@ export default function ProfessorDashboard() {
           const data = await response.json()
           // Filter courses assigned to current professor
           // This is a placeholder - in real implementation, filter by logged-in professor's ID
-          const professorCourses = data.courses?.filter(course => course.instructor !== 'No instructor assigned') || []
+          const professorCourses = data.courses?.filter((course: Course) => course.instructor !== 'No instructor assigned') || []
           setProfessorsCoursesCount(professorCourses.length)
         }
       } catch (error) {

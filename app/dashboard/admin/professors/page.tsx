@@ -44,7 +44,6 @@ export default function ProfessorsPage() {
   const [selectedDepartment, setSelectedDepartment] = useState("all")
   const [selectedSpecialization, setSelectedSpecialization] = useState("all")
   const [professors, setProfessors] = useState<Professor[]>([])
-  const [isLoading, setIsLoading] = useState(true)
 
   // Fetch professors from API
   useEffect(() => {
@@ -60,8 +59,6 @@ export default function ProfessorsPage() {
         }
       } catch (error) {
         console.error('Error fetching professors:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 

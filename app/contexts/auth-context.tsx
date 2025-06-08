@@ -68,6 +68,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    // Check if Supabase is configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase not configured, using mock auth')
+      setUser({
+        id: 'mock-admin-id',
+        email: email,
+        role: 'admin',
+        firstName: 'Admin',
+        lastName: 'User'
+      })
+      return
+    }
+
+    const { authService } = await import('@/lib/auth-supabase')
     const result = await authService.signIn(email, password)
     setUser({
       id: result.user.id,
@@ -80,6 +94,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
+    // Check if Supabase is configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase not configured, using mock auth')
+      setUser(null)
+      return
+    }
+
+    const { authService } = await import('@/lib/auth-supabase')
     await authService.signOut()
     setUser(null)
   }

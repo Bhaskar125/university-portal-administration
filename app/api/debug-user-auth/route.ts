@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
             
             // Auto-confirm email for testing
             try {
-              await supabaseAdmin.auth.admin.updateUserById(debugInfo.authUser.id, {
+              await supabaseAdmin.auth.admin.updateUserById(debugInfo.authUser.id as string, {
                 email_confirm: true
               })
               debugInfo.steps.push('✅ Email auto-confirmed for testing')
