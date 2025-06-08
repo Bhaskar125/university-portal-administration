@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -43,9 +43,30 @@ export default function ProfessorsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
   const [selectedSpecialization, setSelectedSpecialization] = useState("all")
+  const [professors, setProfessors] = useState<Professor[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Empty professors array for real-time system state
-  const professors: Professor[] = []
+  // Fetch professors from API
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const response = await fetch('/api/professors')
+        const data = await response.json()
+        
+        if (response.ok && data.professors) {
+          setProfessors(data.professors)
+        } else {
+          console.error('Error fetching professors:', data.error)
+        }
+      } catch (error) {
+        console.error('Error fetching professors:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProfessors()
+  }, [])
 
   const departments = [
     { name: "All Departments", code: "all" },

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { RouteGuard } from "@/app/components/auth/route-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,12 +26,40 @@ import {
 import Link from "next/link"
 
 export default function AdminDashboardPage() {
+  const [facultyCount, setFacultyCount] = useState(0)
+  const [studentsCount, setStudentsCount] = useState(0)
+
+  // Fetch real-time counts
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        // Fetch professors count
+        const professorsResponse = await fetch('/api/professors')
+        if (professorsResponse.ok) {
+          const professorsData = await professorsResponse.json()
+          setFacultyCount(professorsData.professors?.length || 0)
+        }
+
+        // Fetch students count
+        const studentsResponse = await fetch('/api/students')
+        if (studentsResponse.ok) {
+          const studentsData = await studentsResponse.json()
+          setStudentsCount(studentsData.students?.length || 0)
+        }
+      } catch (error) {
+        console.error('Error fetching counts:', error)
+      }
+    }
+
+    fetchCounts()
+  }, [])
+
   const overallStats = [
     {
       title: "Total Students",
-      value: "0",
-      change: "New system",
-      trend: "neutral",
+      value: studentsCount.toString(),
+      change: studentsCount > 0 ? "Active" : "New system",
+      trend: studentsCount > 0 ? "up" : "neutral",
       icon: Users,
       color: "from-blue-500 to-cyan-500",
       bgColor: "from-blue-50 to-cyan-50"
@@ -55,9 +84,9 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Faculty Members",
-      value: "0",
-      change: "Setup needed",
-      trend: "neutral",
+      value: facultyCount.toString(),
+      change: facultyCount > 0 ? "Active" : "Setup needed",
+      trend: facultyCount > 0 ? "up" : "neutral",
       icon: GraduationCap,
       color: "from-orange-500 to-red-500",
       bgColor: "from-orange-50 to-red-50"

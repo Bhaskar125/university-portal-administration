@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { RouteGuard } from "@/app/components/auth/route-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,12 +27,39 @@ import {
 import Link from "next/link"
 
 export default function ProfessorDashboard() {
+  const [professorsCoursesCount, setProfessorsCoursesCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch professor's courses
+  useEffect(() => {
+    const fetchProfessorCourses = async () => {
+      try {
+        // TODO: Get actual professor ID from authentication context
+        // For now, using Tom Parker's professor ID as example
+        const response = await fetch('/api/courses')
+        if (response.ok) {
+          const data = await response.json()
+          // Filter courses assigned to current professor
+          // This is a placeholder - in real implementation, filter by logged-in professor's ID
+          const professorCourses = data.courses?.filter(course => course.instructor !== 'No instructor assigned') || []
+          setProfessorsCoursesCount(professorCourses.length)
+        }
+      } catch (error) {
+        console.error('Error fetching professor courses:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProfessorCourses()
+  }, [])
+
   const stats = [
     {
       title: "My Courses",
-      value: "0",
-      change: "Setup needed",
-      trend: "neutral",
+      value: isLoading ? "..." : professorsCoursesCount.toString(),
+      change: professorsCoursesCount > 0 ? "Active" : "Setup needed",
+      trend: professorsCoursesCount > 0 ? "up" : "neutral",
       icon: BookOpen,
       color: "from-emerald-500 to-teal-500",
       bgColor: "from-emerald-50 to-teal-50"
